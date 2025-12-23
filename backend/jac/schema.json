@@ -1,0 +1,23 @@
+{
+  "nodes": {
+    "Emotion": [
+      {"id": "e:anxiety", "name": "anxiety", "valence": -0.7, "intensity": 0.6},
+      {"id": "e:joy", "name": "joy", "valence": 0.9, "intensity": 0.3}
+    ],
+    "Trigger": [
+      {"id": "t:deadline", "name": "deadline"},
+      {"id": "t:social", "name": "social_interaction"}
+    ],
+    "Activity": [
+      {"id": "a:walk", "name": "walk", "wellness_score": 0.7}
+    ],
+    "Suggestion": [
+      {"id": "s:breath_4_4", "text": "4-4 breathing for 2 minutes", "category": "breathing"}
+    ]
+  },
+  "edges": [
+    {"from": "t:deadline", "to": "e:anxiety", "weight": 0.6},
+    {"from": "a:walk", "to": "e:joy", "weight": 0.3},
+    {"from": "e:anxiety", "to": "s:breath_4_4", "weight": 0.9}
+  ]
+}
