@@ -44,3 +44,47 @@ Mind-Mate models emotional life using an OSP-style graph (nodes: Emotions, Trigg
 1. Add JacLang schema & example walker implementations in backend/jac/.
 2. Add byLLM function stubs and integration code in backend/byllm/.
 3. Create a minimal FastAPI service in api/ to wire everything.
+
+## Installation & Run
+
+These instructions assume Windows (PowerShell) but work similarly on macOS/Linux with minor path adjustments.
+
+1. Create a Python virtual environment and activate it:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+2. Install dependencies (FastAPI/uvicorn for the API, pytest for tests). If you maintain a `requirements.txt`, prefer:
+
+```powershell
+pip install -r requirements.txt
+# or install core deps manually
+pip install fastapi uvicorn pytest httpx
+```
+
+3. Run the backend API (from repository root):
+
+```powershell
+uvicorn api.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+4. Serve the frontend (static files) locally (from `frontend/`):
+
+```powershell
+cd frontend
+python -m http.server 3000
+# then open http://127.0.0.1:3000 in your browser
+```
+
+5. Run tests:
+
+```powershell
+pytest -q
+```
+
+Notes:
+- If you add native or third-party runtimes (e.g., Jac runtime), install those per their docs and ensure the import path is available.
+- If you commit secrets by mistake (e.g., `.env`), rotate credentials immediately and remove them from git history with `git filter-repo` or the BFG Repo-Cleaner.
+- Consider adding a `requirements.txt` or `pyproject.toml` for reproducible installs.
