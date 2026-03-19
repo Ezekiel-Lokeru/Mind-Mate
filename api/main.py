@@ -4,7 +4,11 @@ Run: pip install fastapi uvicorn pydantic httpx
 Start: uvicorn api.main:app --reload --port 8000
 """
 import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+import logging
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, timezone
@@ -18,6 +22,19 @@ from jaclang.runtimelib.runtime import JacRuntime
 
 app = FastAPI(title="Mind-Mate API")
 
+# Allow local frontend development on localhost:3000
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://[::1]:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # initialize Jac runtime on startup
 @app.on_event("startup")
 def startup():
@@ -30,9 +47,9 @@ DB = {"journal": [], "events": []}
 
 
 class EntryIn(BaseModel):
-    user_id: str
+    user_id: Optional[str] = None
     score: Optional[float] = None
-    tags: Optional[List[str]] = []
+    tags: Optional[List[str]] = None
     text: Optional[str] = None
 
 
@@ -45,7 +62,11 @@ class ResponseOut(BaseModel):
 @app.post("/entry", response_model=ResponseOut)
 def post_entry(entry: EntryIn):
     # 1. store entry in local DB with timezone-aware timestamp
-    data = entry.dict()
+    # Support Pydantic v1/v2: prefer model_dump when available
+    data = entry.model_dump() if hasattr(entry, "model_dump") else entry.dict()
+    # normalize tags default
+    if data.get("tags") is None:
+        data["tags"] = []
     data["timestamp"] = datetime.now(timezone.utc).isoformat()
     DB["journal"].append(data)
 
@@ -78,6 +99,18 @@ def post_entry(entry: EntryIn):
         suggestions=resp["suggestions"],
         journal_id=log_res.get("journal_id"),
     )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    logging.exception("Request validation error: %s %s", request.method, request.url)
+    return JSONResponse(
+        status_code=400,
+        content={"detail": exc.errors(), "body": exc.body},
+    )
+
+
+logging.basicConfig(level=logging.INFO)
 
 
 @app.get("/trends")

@@ -1,0 +1,60 @@
+# Byte-compiled / caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.env
+.venv/
+venv/
+ENV/
+env/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Python testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+
+# IDEs and editors
+.vscode/
+.idea/
+*.code-workspace
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node / frontend
+node_modules/
+frontend/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Secrets / env
+.env.local
+.env.*.local
+secrets.json
+
+# Misc
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints
+*~
+
+# Local jac shim or runtime artifacts (if present)
+jaclang/
+jaclang-*/

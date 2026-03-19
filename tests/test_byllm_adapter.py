@@ -9,28 +9,29 @@ def test_gemini_client_parses_json(monkeypatch):
     class Resp:
         def __init__(self, text):
             self.text = text
-
     def generate_text(model, prompt):
         # Content with extra text and JSON object
-        return Resp("Assistant analysis:\n{\"primary_emotions\": [\"joy\"], \"triggers\": [], \"intensity\": 0.6, \"safety_flags\": {\"self_harm_risk\": false}}")
+        return Resp(
+            "Assistant analysis:\n{\"primary_emotions\": [\"joy\"], \"triggers\": [], \"intensity\": 0.6, \"safety_flags\": {\"self_harm_risk\": false}}"
+        )
 
-import types as _types
+    import types as _types
 
-dummy = _types.SimpleNamespace(generate_text=generate_text, configure=lambda api_key: None)
+    dummy = _types.SimpleNamespace(generate_text=generate_text, configure=lambda api_key: None)
 
-# Create a fake 'google' package and attach the 'generativeai' submodule
-google_pkg = _types.ModuleType("google")
-google_pkg.generativeai = dummy
+    # Create a fake 'google' package and attach the 'generativeai' submodule
+    google_pkg = _types.ModuleType("google")
+    google_pkg.generativeai = dummy
 
-monkeypatch.setitem(sys.modules, "google", google_pkg)
-monkeypatch.setitem(sys.modules, "google.generativeai", dummy)
+    monkeypatch.setitem(sys.modules, "google", google_pkg)
+    monkeypatch.setitem(sys.modules, "google.generativeai", dummy)
 
-client = GoogleGeminiClient(model="test", api_key=None)
-out = client.interpret("I felt joy today")
+    client = GoogleGeminiClient(model="test", api_key=None)
+    out = client.interpret("I felt joy today")
 
-assert out["primary_emotions"] == ["joy"]
-assert out["intensity"] == 0.6
-assert out["safety_flags"].get("self_harm_risk") is False
+    assert out["primary_emotions"] == ["joy"]
+    assert out["intensity"] == 0.6
+    assert out["safety_flags"].get("self_harm_risk") is False
 
 def test_adapter_detects_anxiety_and_trigger():
     res = interpret_input("I'm stressed about a deadline")
